@@ -57,6 +57,8 @@ retailaction/metric.py      local approximation of the challenge metric
 retailaction/poserule.py    pose rule and its submission writer
 retailaction/train.py       training loop with validation
 retailaction/infer.py       checkpoint -> submission CSV
+retailaction/dump.py        raw query outputs of a checkpoint, plain and horizontally flipped
+retailaction/post.py        scoring and flip averaging over dumped outputs; evaluation or CSV
 retailaction/check_submission.py   format check against sample_submission.csv
 tools/overlap_check.py      checks that no challenge test clip appears in a labelled split
 configs/poserule.json       tuned pose rule parameters
@@ -88,6 +90,17 @@ python -m retailaction.check_submission submission_mvit.csv --sample sample_subm
 ```
 
 Training takes a single 32 GB GPU (peak about 18 GB at batch 8).
+
+To compare confidence scores and flip averaging on the validation split
+without rerunning the model for each variant:
+
+```bash
+python -m retailaction.dump --ckpt runs/mvit/best.pt --pack data/validation.pack.tar --out val_raw.npz
+python -m retailaction.post --raw val_raw.npz --pack data/validation.pack.tar
+```
+
+The Dockerfile runs steps 1 and 2b inference end to end from the Kaggle zip
+and a trained checkpoint mounted at `/ckpt/best.pt`.
 
 ## Licence
 
