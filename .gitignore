@@ -1,0 +1,7 @@
+__pycache__/
+*.pt
+*.tar
+*.index.json
+*.csv
+runs/
+data/

@@ -1,0 +1,15 @@
+{
+ "width": 0.34,
+ "shift": 0.06,
+ "smooth": 2,
+ "min_gap": 0.3,
+ "max_actions": 5,
+ "second_scale": 0.5,
+ "other_hand_scale": 0.3,
+ "score_center": 1.2,
+ "score_slope": 3.0,
+ "extra_widths": [],
+ "reach": 0.1,
+ "adapt_thr": 0.8,
+ "adapt_mix": 0.5
+}
