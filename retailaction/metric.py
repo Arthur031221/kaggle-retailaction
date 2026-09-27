@@ -6,8 +6,9 @@ distance in meters <= d and score >= c; AP is computed from the precision and
 recall over 101 confidence thresholds (VOC style monotone precision) and then
 averaged over 10 temporal x 20 spatial thresholds. Poses here are in
 normalized image coordinates, so the meters factor is meters per normalized
-unit, averaged over bones and frames; the spatial distance is the mean of the
-two views. Use it for relative comparisons only.
+unit, averaged over bones and frames. The paper matches on the nearer of the
+two views, min(d0, d1); view_rule="mean" gives the stricter average of both.
+Use it for relative comparisons only.
 """
 import numpy as np
 
@@ -58,8 +59,9 @@ def _pts(a):
     return np.array([s["rank0"]["x"], s["rank0"]["y"], s["rank1"]["x"], s["rank1"]["y"]], dtype=np.float64)
 
 
-def evaluate(preds, gts, factors):
+def evaluate(preds, gts, factors, view_rule="min"):
     """preds, gts: {id: [action dicts]}. factors: {id: [f_rank0, f_rank1]} meters per unit (None allowed)."""
+    combine = np.minimum if view_rule == "min" else (lambda a, b: (a + b) / 2)
     known = [f for fs in factors.values() for f in fs if f]
     fallback = float(np.median(known)) if known else 1.0
     n_gt = sum(len(g) for g in gts.values())
@@ -77,7 +79,7 @@ def evaluate(preds, gts, factors):
             p = _pts(a)
             d0 = np.hypot(*(p[:2] - gt_p[:, :2]).T) * f[0]
             d1 = np.hypot(*(p[2:] - gt_p[:, 2:]).T) * f[1]
-            records.append((a["score"], vid, tiou, (d0 + d1) / 2))
+            records.append((a["score"], vid, tiou, combine(d0, d1)))
     records.sort(key=lambda r: -r[0])
     scores = np.array([r[0] for r in records])
     aps = np.zeros((len(T_THRESHOLDS), len(D_THRESHOLDS)))
