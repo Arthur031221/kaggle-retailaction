@@ -5,7 +5,8 @@ Tokens are projected, given learned 3D positional encodings and refined by one
 transformer encoder per view. The two encoded token sets are concatenated with
 a learned view embedding and read by a DETR decoder with a few action queries.
 Each query predicts class logits (take, put, touch, no action), a temporal
-interval and one (x, y) point per view.
+interval and one (x, y) point per view. With refine > 0, each point is corrected by
+sampling a 3x3 patch of stride-8 backbone features around it (PointRefiner).
 """
 import torch
 import torch.nn as nn
@@ -23,7 +24,7 @@ class MViTTokens(nn.Module):
         self.conv_proj, self.pos_encoding, self.blocks, self.norm = m.conv_proj, m.pos_encoding, m.blocks, m.norm
         self.dim = m.norm.normalized_shape[0]
 
-        self.fine_dim = m.blocks[2].norm2.normalized_shape[0]  # blocks 1 and 2 run at stride 8
+        self.fine_dim = m.blocks[3].norm1.normalized_shape[0]  # input of the block that pools to stride 16
 
     def forward(self, x):
         """Returns the final tokens without the class token, their (T, H, W), and the last
@@ -59,7 +60,7 @@ class PointRefiner(nn.Module):
     def __init__(self, d, c, patch=3):
         super().__init__()
         r = torch.arange(patch, dtype=torch.float32) - (patch - 1) / 2
-        self.register_buffer("offsets", torch.stack(torch.meshgrid(r, r, indexing="xy"), -1).view(-1, 2))
+        self.register_buffer("offsets", torch.stack(torch.meshgrid(r, r, indexing="xy"), -1).view(-1, 2), persistent=False)
         self.patch_proj = nn.Linear(patch * patch * c, d)
         self.delta = MLP(3 * d, 4)
         nn.init.zeros_(self.delta.net[-1].weight)

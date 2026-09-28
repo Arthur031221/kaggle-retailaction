@@ -99,6 +99,17 @@ python -m retailaction.dump --ckpt runs/mvit/best.pt --pack data/validation.pack
 python -m retailaction.post --raw val_raw.npz --pack data/validation.pack.tar
 ```
 
+Point refinement (experimental): `--refine 2` adds two correction steps that
+sample a 3x3 patch of stride-8 backbone features around each predicted point
+at the query's temporal centre. The correction starts at zero, so a model
+started with `--init runs/mvit/best.pt` gives the same output before
+fine-tuning.
+
+```bash
+python -m retailaction.train --init runs/mvit/best.pt --refine 2 --train data/train.pack.tar \
+    --val data/validation.pack.tar --out runs/refine --epochs 6 --lr 5e-5 --lr-backbone 1e-5 --warmup 100
+```
+
 The Dockerfile runs steps 1 and 2b inference end to end from the Kaggle zip
 and a trained checkpoint mounted at `/ckpt/best.pt`.
 
