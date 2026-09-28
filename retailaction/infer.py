@@ -22,7 +22,7 @@ def main():
     args = ap.parse_args()
 
     ck = torch.load(args.ckpt, map_location="cpu", weights_only=False)
-    model = RetailDETR(num_queries=ck["args"].get("queries", 5), pretrained=False)
+    model = RetailDETR(num_queries=ck["args"].get("queries", 5), refine=ck["args"].get("refine", 0), pretrained=False)
     model.load_state_dict(ck["model"])
     model.cuda()
     dl = DataLoader(ClipDataset(args.pack), args.bs, num_workers=args.workers, collate_fn=collate)

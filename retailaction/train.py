@@ -49,6 +49,8 @@ def main():
     ap.add_argument("--wd", type=float, default=0.05)
     ap.add_argument("--warmup", type=int, default=300)
     ap.add_argument("--queries", type=int, default=5)
+    ap.add_argument("--refine", type=int, default=0, help="point refinement steps on stride-8 features")
+    ap.add_argument("--init", default="", help="checkpoint to start from; missing refiner weights start fresh")
     ap.add_argument("--workers", type=int, default=10)
     ap.add_argument("--val-every", type=int, default=2)
     ap.add_argument("--max-steps", type=int, default=0, help="debug: stop after this many optimizer steps")
@@ -66,7 +68,10 @@ def main():
         val_dl = DataLoader(ClipDataset(args.val), args.bs * 2, num_workers=args.workers, collate_fn=collate, pin_memory=True)
     print(f"train samples {len(train_ds)}, val samples {len(val_dl.dataset) if val_dl else 0}", flush=True)
 
-    model = RetailDETR(num_queries=args.queries).to(device)
+    model = RetailDETR(num_queries=args.queries, refine=args.refine).to(device)
+    if args.init:
+        missing, unexpected = model.load_state_dict(torch.load(args.init, map_location="cpu")["model"], strict=False)
+        print(f"init from {args.init}: {len(missing)} missing, {len(unexpected)} unexpected", flush=True)
     crit = SetCriterion().to(device)
     bb = [p for n, p in model.named_parameters() if n.startswith("backbone.")]
     hd = [p for n, p in model.named_parameters() if not n.startswith("backbone.")]

@@ -23,14 +23,24 @@ class MViTTokens(nn.Module):
         self.conv_proj, self.pos_encoding, self.blocks, self.norm = m.conv_proj, m.pos_encoding, m.blocks, m.norm
         self.dim = m.norm.normalized_shape[0]
 
+        self.fine_dim = m.blocks[2].norm2.normalized_shape[0]  # blocks 1 and 2 run at stride 8
+
     def forward(self, x):
+        """Returns the final tokens without the class token, their (T, H, W), and the last
+        stride-8 feature map (N, C, T, H, W) taken before the block that pools to stride 16."""
         x = self.conv_proj(x).flatten(2).transpose(1, 2)
         x = self.pos_encoding(x)
         thw = (self.pos_encoding.temporal_size,) + self.pos_encoding.spatial_size
+        fine = None
+        base = thw[1]
         for block in self.blocks:
             x, thw = block(x, thw)
+            if thw[1] == base // 2:
+                fine = (x, thw)
         x = self.norm(x)
-        return x[:, 1:], thw  # drop the class token
+        f, (t, h, w) = fine
+        fine = f[:, 1:].transpose(1, 2).reshape(f.shape[0], f.shape[2], t, h, w)
+        return x[:, 1:], thw, fine
 
 
 class MLP(nn.Module):
@@ -42,10 +52,46 @@ class MLP(nn.Module):
         return self.net(x)
 
 
+class PointRefiner(nn.Module):
+    """One refinement step: sample a 3x3 patch of stride-8 features around each view's point
+    at the query's temporal centre, and predict a correction in logit space."""
+
+    def __init__(self, d, c, patch=3):
+        super().__init__()
+        r = torch.arange(patch, dtype=torch.float32) - (patch - 1) / 2
+        self.register_buffer("offsets", torch.stack(torch.meshgrid(r, r, indexing="xy"), -1).view(-1, 2))
+        self.patch_proj = nn.Linear(patch * patch * c, d)
+        self.delta = MLP(3 * d, 4)
+        nn.init.zeros_(self.delta.net[-1].weight)
+        nn.init.zeros_(self.delta.net[-1].bias)
+
+    def sample(self, feat, pts, tc):
+        """feat: (B, C, T, H, W), pts: (B, Q, 2) in [0, 1], tc: (B, Q) -> (B, Q, 9 C)."""
+        b, c, _, h, w = feat.shape
+        q, k = pts.shape[1], self.offsets.shape[0]
+        step = 2.0 / torch.tensor([w, h], device=pts.device, dtype=pts.dtype)
+        xy = (pts * 2 - 1)[:, :, None] + self.offsets.to(pts.dtype) * step  # (B, Q, K, 2)
+        t = (tc * 2 - 1)[:, :, None, None].expand(-1, -1, k, 1)
+        grid = torch.cat([xy, t], -1).view(b, 1, q, k, 3)
+        s = F.grid_sample(feat, grid.to(feat.dtype), align_corners=False)  # (B, C, 1, Q, K)
+        return s[:, :, 0].permute(0, 2, 3, 1).reshape(b, q, k * c)
+
+    def forward(self, h, points, times, feats):
+        """feats: (B, 2, C, T, H, W). Returns refined points (B, Q, 4)."""
+        p = points.detach()
+        tc = times.detach().mean(-1)
+        f0 = self.patch_proj(self.sample(feats[:, 0], p[..., :2], tc))
+        f1 = self.patch_proj(self.sample(feats[:, 1], p[..., 2:], tc))
+        d = self.delta(torch.cat([h, f0, f1], -1))
+        return (torch.logit(p.float().clamp(1e-4, 1 - 1e-4)) + d.float()).sigmoid()
+
+
 class RetailDETR(nn.Module):
-    def __init__(self, d=256, num_queries=5, enc_layers=2, dec_layers=6, heads=8, pretrained=True, grid=(8, 7, 7)):
+    def __init__(self, d=256, num_queries=5, enc_layers=2, dec_layers=6, heads=8, pretrained=True, grid=(8, 7, 7),
+                 refine=0):
         super().__init__()
         self.backbone = MViTTokens(pretrained)
+        self.refiners = nn.ModuleList([PointRefiner(d, self.backbone.fine_dim) for _ in range(refine)])
         self.proj = nn.Linear(self.backbone.dim, d)
         t, h, w = grid
         self.pos_t = nn.Parameter(torch.randn(t, d) * 0.02)
@@ -72,7 +118,7 @@ class RetailDETR(nn.Module):
     def forward(self, x):
         """x: (B, 2 views, 3, T, H, W)."""
         b = x.shape[0]
-        tok, thw = self.backbone(x.flatten(0, 1))
+        tok, thw, fine = self.backbone(x.flatten(0, 1))
         tok = self.proj(tok)
         pos = (self.pos_t[:, None, None] + self.pos_h[None, :, None] + self.pos_w[None, None, :]).flatten(0, 2)
         tok = (tok + pos[: tok.shape[1]]).view(b, 2, tok.shape[1], -1)
@@ -82,6 +128,13 @@ class RetailDETR(nn.Module):
         for layer in self.dec_layers:
             h = layer(h, mem)
             outs.append(self.heads(self.dec_norm(h)))
+        if self.refiners:
+            hn = self.dec_norm(h)
+            feats = fine.view(b, 2, *fine.shape[1:])
+            last = outs[-1]
+            for ref in self.refiners:
+                last = dict(last, points=ref(hn, last["points"], last["times"], feats))
+                outs.append(last)
         out = outs[-1]
         out["aux"] = outs[:-1]
         return out
