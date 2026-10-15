@@ -22,8 +22,8 @@ No data is included in this repository.
 1. **Pose rule** (`retailaction/poserule.py`, no training). The metadata
    carries 2D keypoints of the shopper for every frame. The frame and hand with
    the largest arm extension (hand to neck distance over torso length, summed
-   over both views) is taken as the contact; the hand keypoint in each view is
-   the touch point; the interval is a blend of a fixed width window and the
+   over both views) is taken as the contact. The hand keypoint in each view is
+   the touch point, and the interval is a blend of a fixed width window and the
    span where extension stays near its peak. A few weaker peaks are added with
    lower scores. The handful of parameters in `configs/poserule.json` were
    tuned on half of the validation split. Note: keypoints are stored as
@@ -31,13 +31,13 @@ No data is included in this repository.
 2. **MViT-B + DETR baseline** (`retailaction/model.py`), a reimplementation of
    the organisers' baseline from the RetailAction paper (ICCV 2025 Retail
    Vision workshop). A shared MViT-B backbone (Kinetics-400 weights from
-   torchvision) encodes 16 frames at 224x224 from each view; tokens are
+   torchvision) encodes 16 frames at 224x224 from each view. Tokens are
    projected to 256 dims, given learned 3D positional encodings and refined
-   by one transformer encoder per view; the two token sets are concatenated
+   by one transformer encoder per view, and the two token sets are concatenated
    with a view embedding and decoded by a 6 layer DETR decoder with 5 action
    queries. Each query predicts class logits (take, put, touch, none), an
    interval and a point per view. Hungarian matching uses class probability,
-   point distance and temporal L1 / IoU; losses are cross entropy, point L2,
+   point distance and temporal L1 / IoU. Losses are cross entropy, point L2,
    temporal L1 and 1 - tIoU, with auxiliary losses on every decoder layer.
    The confidence is the highest action class probability.
 
@@ -110,10 +110,12 @@ python -m retailaction.train --init runs/mvit/best.pt --refine 2 --train data/tr
     --val data/validation.pack.tar --out runs/refine --epochs 6 --lr 5e-5 --lr-backbone 1e-5 --warmup 100
 ```
 
-The Dockerfile runs steps 1 and 2b inference end to end from the Kaggle zip
-and a trained checkpoint mounted at `/ckpt/best.pt`.
+The Dockerfile runs inference end to end from the Kaggle zip and a trained
+checkpoint mounted at `/ckpt/best.pt`: pack the test clips, dump the raw query
+outputs (plain and flipped), then rescore and merge the two passes into the
+submission CSV. Set `SCORE=max` for the refined checkpoint (default `fg`).
 
 ## Licence
 
 Code: MIT. The RetailAction data is under the Standard AI dataset licence and
-the Kaggle competition rules; it is not redistributed here.
+the Kaggle competition rules and is not redistributed here.
