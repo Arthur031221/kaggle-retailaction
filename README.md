@@ -110,10 +110,12 @@ python -m retailaction.train --init runs/mvit/best.pt --refine 2 --train data/tr
     --val data/validation.pack.tar --out runs/refine --epochs 6 --lr 5e-5 --lr-backbone 1e-5 --warmup 100
 ```
 
-The Dockerfile runs inference end to end from the Kaggle zip and a trained
-checkpoint mounted at `/ckpt/best.pt`: pack the test clips, dump the raw query
-outputs (plain and flipped), then rescore and merge the two passes into the
-submission CSV. Set `SCORE=max` for the refined checkpoint (default `fg`).
+The Dockerfile runs `run_inference.sh` end to end from the Kaggle zip and two
+trained checkpoints (run it with `--shm-size=8g`) mounted at `/ckpt/base.pt` and `/ckpt/refined.pt`: pack the
+test clips, dump the raw query outputs of each checkpoint (plain and flipped),
+fold the flip pass, pair and average the queries of the two models, rescore
+with the foreground probability and write the submission CSV after a format
+check.
 
 ## Licence
 
