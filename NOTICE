@@ -1,0 +1,3 @@
+This Dataset is licensed under the Standard.AI Dataset License, Copyright © Standard Corp.  All Rights Reserved.
+
+The checkpoints released with this repository (base.pt and refined.pt) are trained on the RetailAction dataset, authored by Standard Cognition, and are covered by that licence, see DATASET_LICENSE. The code in this repository is MIT licensed.

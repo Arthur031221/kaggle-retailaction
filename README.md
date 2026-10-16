@@ -2,6 +2,62 @@
 
 Code for the Kaggle competition
 [retail-action-challenge-praw-workshop-wacv-2027](https://www.kaggle.com/competitions/retail-action-challenge-praw-workshop-wacv-2027).
+Team MaxwellEQ. The method is described in [REPORT.md](REPORT.md).
+
+## Reproduce the final submission
+
+The Docker image reproduces Kaggle submission 57249716 (public score 0.7924)
+from the competition zip with one command. It averages two checkpoints, each
+run on the plain and the horizontally flipped clips, and rescores with the
+foreground probability.
+
+Requirements: Docker with the NVIDIA Container Toolkit, one GPU with at least
+12 GB of memory, and about 31 GB of free disk for the zip and the packed
+test clips.
+
+1. Code and checkpoints. `base.pt` and `refined.pt` are attached to the
+   [v1.0 release](https://github.com/Arthur031221/kaggle-retailaction/releases/tag/v1.0)
+   with their SHA256 sums.
+
+   ```bash
+   git clone https://github.com/Arthur031221/kaggle-retailaction.git
+   cd kaggle-retailaction
+   mkdir -p data ckpt out
+   gh release download v1.0 -R Arthur031221/kaggle-retailaction -D ckpt
+   (cd ckpt && sha256sum -c SHA256SUMS)
+   ```
+
+2. Competition data. Put the Kaggle zip in `data/`, keeping its name
+   `retail-action-challenge-praw-workshop-wacv-2027.zip`:
+
+   ```bash
+   kaggle competitions download -c retail-action-challenge-praw-workshop-wacv-2027 -p data
+   ```
+
+3. Build and run:
+
+   ```bash
+   docker build -t retailaction .
+   docker run --rm --gpus all --shm-size=8g \
+       -v $PWD/data:/data -v $PWD/ckpt:/ckpt -v $PWD/out:/out retailaction
+   ```
+
+   The container packs the 2,500 test clips from the zip (re-encoded to
+   256x256), dumps the raw query outputs of both checkpoints for the plain and
+   flipped passes, pairs and averages the queries of the two models, applies
+   foreground rescoring and writes `out/submission.csv` after a format check.
+   On one RTX 5090 this takes about 5 minutes.
+
+4. Check the result:
+
+   ```bash
+   sha256sum out/submission.csv
+   # 0f991184df94100ca044640cbb853cfeb8f61c7938d6465b3b621434b79fa2e8  out/submission.csv
+   ```
+
+Our best public score, 0.7939 (submission 56635294), came from an earlier
+checkpoint of the same recipe that a disk clean-up deleted. The
+checkpoints here are a retrain of that recipe, see [REPORT.md](REPORT.md).
 
 ## Task
 
@@ -42,9 +98,10 @@ No data is included in this repository.
    The confidence is the highest action class probability.
 
    Differences from the paper: effective batch 32 instead of 1024 with a lower
-   backbone learning rate (2e-5, head 1e-4), a 1 - tIoU loss term, and training
-   on a random subset of 8,000 of the 17,222 training clips because of local
-   disk limits.
+   backbone learning rate (2e-5, head 1e-4) and a 1 - tIoU loss term. The
+   first runs used a random subset of 8,000 of the 17,222 training clips
+   because of local disk limits. The final checkpoints are trained on all
+   labelled clips, see [REPORT.md](REPORT.md).
 
 ## Layout
 
@@ -119,5 +176,10 @@ check.
 
 ## Licence
 
-Code: MIT. The RetailAction data is under the Standard AI dataset licence and
-the Kaggle competition rules and is not redistributed here.
+Code: MIT, see [LICENSE](LICENSE). The RetailAction data is under the
+Standard AI dataset licence and the Kaggle competition rules and is not
+redistributed here. The released checkpoints are trained on the RetailAction
+dataset, authored by Standard Cognition, so they are covered by its licence,
+see [NOTICE](NOTICE) and [DATASET_LICENSE](DATASET_LICENSE).
+
+Assisted by Claude/Codex.

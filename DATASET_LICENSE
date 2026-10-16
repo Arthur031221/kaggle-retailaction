@@ -1,0 +1,75 @@
+Copy of the licence of the RetailAction dataset by Standard Cognition, as published with the Kaggle competition rules.
+
+STANDARD.AI DATASET LICENSE AGREEMENT
+Release Date: September 24th, 2025
+“Dataset” means the data set, database, or other material to which Standard applied this Agreement.
+“Agreement” means the terms and conditions for use, reproduction, distribution and modification of the Dataset Materials set forth herein.
+
+“Dataset Materials” means, collectively, the Dataset and Documentation (and any portion thereof) made available under this Agreement.
+
+"Derivative Works" shall mean any work, in any form, that is based on (or derived from) the Dataset Materials and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship.
+
+“Documentation” means any documentation accompanying the Dataset.
+
+“Licensee” or “you” means you, or your employer or any other person or entity (if you are entering into this Agreement on such person or entity’s behalf), of the age required under applicable laws, rules or regulations to provide legal consent and that has legal authority to bind your employer or such other person or entity if you are entering in this Agreement on their behalf.
+
+“Standard” or “we” means Standard Cognition Corp.
+
+By using or distributing any portion or element of the Dataset Materials, you agree to be bound by this Agreement.
+
+1. License Rights and Redistribution.
+a. Grant of Rights. Subject to the terms and conditions of this License, you are granted a non-exclusive, worldwide, non-transferable and royalty-free limited license under Standard’s intellectual property or other rights owned by Standard embodied in the Dataset Materials to use, reproduce, distribute, copy, create derivative works of, and make modifications to the Dataset Materials.
+
+b. Redistribution and Use.
+
+i. If you distribute or make available the Dataset Materials (or any derivative works thereof), or a product or service that uses any of them, including an AI model, you shall
+
+(a) Identify Standard Cognition as the author of the Dataset Materials in the applicable document, website, user interface, about page, product documentation;
+
+(b) Indicate the Dataset Materials are licensed under this Agreement and include a copy of this Agreement with any such Dataset Materials; 
+
+(c) Retain in all copies of the Dataset Materials that you distribute the following attribution notice within a “Notice” text file distributed as a part of such copies: “This Dataset is licensed under the Standard.AI Dataset License, Copyright © Standard Corp.  All Rights Reserved.”
+
+ii. Your use of the Dataset Materials must comply with applicable laws and regulations (including trade compliance laws and regulations).
+
+iii.  You will maintain and use the information in the Dataset Materials in deidentified form and will not attempt to reidentify any individuals in the Dataset Materials.
+
+iv.  You may add your own intellectual property statement to your modifications of the Dataset Materials and, except as set forth in this Section, may provide additional or different terms and conditions for use, reproduction, or distribution of the Dataset Materials or Derivative Work as a whole, provided your use, reproduction, modification, distribution, performance, and display of the Dataset Materials or Derivative Work otherwise complies with the terms and conditions of this Agreement. Any additional or different terms and conditions you impose must not conflict with the terms of this Agreement and in the event of a conflict, the terms and conditions of this Agreement shall govern over any such additional or different terms and conditions.
+
+2. Additional Commercial Terms. 
+
+If, at any time, the revenue obtained from products or services made available by You that use or incorporate the Dataset Materials exceeds $10,000 (USD), you must request a license to the Dataset Materials from Standard, which Standard may grant to you in its sole discretion.  You are not authorized to exercise any of the rights under this Agreement unless or until Standard otherwise expressly grants you such rights.
+If you receive the Dataset Materials or Derivative Works from a direct or indirect licensee as part of an integrated end user product, then this Section 2 will not apply to you.
+
+3. Disclaimer of Warranty. 
+
+UNLESS REQUIRED BY APPLICABLE LAW, THE DATASET MATERIALS ARE PROVIDED ON AN “AS IS” BASIS, WITHOUT WARRANTIES OF ANY KIND, AND STANARD DISCLAIMS ALL WARRANTIES OF ANY KIND, BOTH EXPRESS AND IMPLIED, INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. YOU ARE SOLELY RESPONSIBLE FOR DETERMINING THE APPROPRIATENESS OF USING OR REDISTRIBUTING THE DATASET MATERIALS AND ASSUME ANY RISKS ASSOCIATED WITH YOUR USE OF THE DATASET MATERIALS.
+
+4. Limitation of Liability. 
+
+IN NO EVENT WILL STANDARD OR ITS AFFILIATES BE LIABLE UNDER ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, TORT, NEGLIGENCE, PRODUCTS LIABILITY, OR OTHERWISE, ARISING OUT OF THIS AGREEMENT, FOR ANY LOST PROFITS OR ANY INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL, EXEMPLARY OR PUNITIVE DAMAGES, EVEN IF STANDARD OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF ANY OF THE FOREGOING.
+
+5. Accepting Warranty or Additional Liability
+
+While redistributing the Dataset Materials or Derivative Works thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of Standard, and only if You agree to indemnify, defend, and hold Standard harmless for any liability incurred by, or claims asserted against, Standard by reason of your accepting any such warranty or additional liability.
+
+6. Intellectual Property.
+
+a. No trademark licenses are granted under this Agreement, and in connection with the Dataset Materials, neither Standard nor Licensee may use any name or mark owned by or associated with the other or any of its affiliates, except as required for reasonable and customary use in describing and redistributing the Dataset Materials or as set forth in this Section 5(a). 
+
+b. Subject to Standard’s ownership of the Dataset Materials and derivatives made by or for Standard, with respect to any derivative works and modifications of the Dataset Materials that are made by you, as between you and Standard, you are and will be the owner of such derivative works and modifications.
+
+c. If you institute litigation or other proceedings against Meta or any entity (including a crossclaim or counterclaim in a lawsuit) alleging that the Dataset Materials, or any portion of any of the foregoing, constitutes infringement of intellectual property or other rights owned or licensable by you, then any licenses granted to you under this Agreement shall terminate as of the date such litigation or claim is filed or instituted. You will indemnify and hold harmless Standard from and against any claim by any third party arising out of or related to your use or distribution of the Dataset Materials.
+
+7. Term and Termination. 
+
+The term of this Agreement will commence upon your acceptance of this Agreement or access to the Dataset Materials and will continue in full force and effect until terminated in accordance with the terms and conditions herein. Standard may terminate this Agreement if you are in breach of any term or condition of this Agreement. Upon termination of this Agreement, you shall delete and cease use of the Dataset Materials. Sections 3, 4 and 8 shall survive the termination of this Agreement.
+
+8. Governing Law and Jurisdiction. 
+
+This Agreement will be governed and construed under the laws of the State of California without regard to choice of law principles, and the UN Convention on Contracts for the International Sale of Goods does not apply to this Agreement. The courts of California shall have exclusive jurisdiction of any dispute arising out of this Agreement.
+
+9. Reporting Unlicensed Uses of the Dataset Materials
+
+To report unlicensed uses of the Dataset Materials, please contact us at legal@standard.ai.
+
