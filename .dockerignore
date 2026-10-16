@@ -1,0 +1,11 @@
+# Data, checkpoints and outputs are mounted at run time and must not be
+# copied into the image (the competition zip alone is about 30 GB).
+data
+ckpt
+out
+runs
+.git
+*.zip
+*.pt
+*.npz
+*.tar
