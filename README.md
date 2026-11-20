@@ -1,8 +1,41 @@
 # RetailAction challenge (PRAW workshop, WACV 2027)
 
-Code for the Kaggle competition
-[retail-action-challenge-praw-workshop-wacv-2027](https://www.kaggle.com/competitions/retail-action-challenge-praw-workshop-wacv-2027).
-Team MaxwellEQ. The method is described in [REPORT.md](REPORT.md).
+Our entry to the
+[RetailAction challenge](https://www.kaggle.com/competitions/retail-action-challenge-praw-workshop-wacv-2027)
+at the PRAW workshop, WACV 2027, as team MaxwellEQ. Given two top-view clips
+of one shopper from synchronized ceiling cameras, the model finds each
+interaction with the shelf, when it starts and ends, and where the hand
+touches in each view.
+
+## Approach
+
+We re-implemented the organisers' MViT-B + DETR baseline and trained it on all
+17,222 labelled training clips plus the labelled test split, keeping the
+validation split for model selection. On top of it we changed three things:
+
+1. Foreground rescoring. The confidence is 1 - p(no action) instead of the
+   largest class probability, since the metric does not score the action class.
+2. Flip test-time augmentation. The mirrored clip is run as well, its queries
+   are paired with the plain ones by Hungarian matching, and times and points
+   are averaged.
+3. Point refinement. A second model samples a 3x3 patch of backbone features
+   around each predicted touch point and corrects it.
+
+The final submission averages a base and a refined checkpoint. The ablations
+are in [REPORT.md](REPORT.md).
+
+## Results
+
+| Submission | mAP |
+|---|---|
+| Final submission, Kaggle public leaderboard | 0.7924 |
+| Best submission, Kaggle public leaderboard | 0.7939 |
+| Final submission, organisers' corrected private score | 0.7609 |
+| Baseline-equivalent file, corrected private score | 0.3940 |
+
+For the challenge report the organisers reran our Docker image on 16 clips on
+an L4 GPU and got the same five actions in the same order, with a largest
+output difference of 0.0048.
 
 ## Reproduce the final submission
 
