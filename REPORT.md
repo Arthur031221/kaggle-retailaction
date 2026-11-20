@@ -1,6 +1,6 @@
 # RetailAction challenge: method report
 
-Team MaxwellEQ (Kaggle display name Arthur12212003). Member: Chi-Wei Lee, National Tsing Hua University, Taiwan.
+Team MaxwellEQ.
 Best public score: 0.7939 (submission 56635294, from a checkpoint we could not keep). Reproducible final submission: 0.7924 (submission 57249716), the average of two retrained checkpoints described below.
 
 ## Summary
